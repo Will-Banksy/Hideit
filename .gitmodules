@@ -1,0 +1,3 @@
+[submodule "Command-Line-Parser"]
+	path = Command-Line-Parser
+	url = https://github.com/Will-Banksy/Command-Line-Parser
