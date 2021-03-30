@@ -1,4 +1,6 @@
 .kdev4/*
 build/*
-*.kdev4
 Command-Line-Parser
+Image-Library
+Compression-Library
+*.kdev4

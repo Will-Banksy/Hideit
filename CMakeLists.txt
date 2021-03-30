@@ -18,22 +18,24 @@ project("${ProjectName}" VERSION "${ProjectVersion}")
 set(ProjectDir "${PROJECT_SOURCE_DIR}") # PROJECT_SOURCE_DIR is set by calls to project()
 set(SourceDir "${ProjectDir}/src")
 
+# ==
+
+add_subdirectory(Command-Line-Parser)
+add_subdirectory(Image-Library)
+
 # ===
 
-set(Libraries "") # Example: -lglfw -lGL -ldl
+set(Libraries "cliparser" "ilib")
+
+set(IncludeDirs "${SourceDir}" "${ProjectDir}/Command-Line-Parser/src" "${ProjectDir}/Image-Library/src")
 
 set(SourceFiles
 	"${SourceDir}/Main.cpp"
-
-	"${SourceDir}/parser/CommandLineParser.cpp"
-	"${SourceDir}/parser/CommandLineOption.cpp"
-	"${SourceDir}/parser/CommandLineArg.cpp"
+	"${SourceDir}/Steg.cpp"
 )
 
 set(HeaderFiles
-	"${SourceDir}/parser/CommandLineParser.h"
-	"${SourceDir}/parser/CommandLineOption.h"
-	"${SourceDir}/parser/CommandLineArg.h"
+	"${SourceDir}/Steg.h"
 )
 
 # ===
@@ -45,7 +47,7 @@ message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
 
 add_executable("${ExecutableName}" "${SourceFiles}" "${HeaderFiles}")
 
-target_include_directories("${ExecutableName}" PRIVATE "${SourceDir}")
+target_include_directories("${ExecutableName}" PRIVATE "${IncludeDirs}")
 
 target_link_libraries("${ExecutableName}" PRIVATE "${Libraries}")
 

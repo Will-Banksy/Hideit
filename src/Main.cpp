@@ -1,27 +1,32 @@
-#include "parser/Global.h"
 #include "parser/CommandLineParser.h"
+#include "Steg.h"
 
-// TODO Turn the Command Line Parser stuff into like a proper library
+// TODO Make the stego stuff into a library. Eventually
 
 int main(int argc, char** argv) {
 	CommandLineParser parser("SteganographyExe", "1.0");
 
-	String inputFile;
-	String outputFile;
-	String dataFile;
+	std::string coverFile;
+	std::string stegoFile;
+	std::string dataFile;
 	bool showHelp = false;
 	bool showVersion = false;
 
-	parser.AddArgs({ new CommandLineArg("input", "the input file", &inputFile), new CommandLineArg("output", "the output file", &outputFile) });
+	parser.AddArgs({ new CommandLineArg("operation", "The operation to perform, must be either embed or extract") });
 	parser.AddOptions({
 		new CommandLineOption({"-h", "--help"}, "Displays this help", &showHelp),
 		new CommandLineOption({"--version"}, "Displays the program version", &showVersion),
-		new CommandLineOption({"-df", "--datafile"}, "Allows you to specify the datafile", nullptr, { new CommandLineArg("datafile", "the file that contains the data to be hidden", &dataFile) })
+		new CommandLineOption({"-df", "--datafile"}, "Allows you to specify the datafile - If not specified, will take data from stdin", nullptr, { new CommandLineArg("datafile", "the file that contains the data to be hidden", &dataFile) }),
+		new CommandLineOption({"-sf", "--stegofile"}, "Allows you to specify the stegofile", nullptr, { new CommandLineArg("stegofile", "the file that contains the hidden data", &stegoFile) }),
+		new CommandLineOption({"-cf", "--coverfile"}, "Allows you to specify the coverfile", nullptr, { new CommandLineArg("coverfile", "the file that is used to hide the data", &coverFile) })
 	});
 
 	parser.Parse(argc, argv);
 
 	if(showHelp) {
+		if(showVersion) {
+			parser.Version();
+		}
 		parser.Help();
 		return 0;
 	}
@@ -30,8 +35,6 @@ int main(int argc, char** argv) {
 		parser.Version();
 		return 0;
 	}
-
-	std::cout << "inputFile: " << inputFile << ", outputFile: " << outputFile << ", dataFile: " << dataFile << ", showHelp: " << showHelp << ", showVersion: " << showVersion << std::endl;
 
 	return 0;
 }
