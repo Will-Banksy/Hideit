@@ -22,20 +22,25 @@ set(SourceDir "${ProjectDir}/src")
 
 add_subdirectory(Command-Line-Parser)
 add_subdirectory(Image-Library)
+add_subdirectory(Compression-Library)
 
 # ===
 
-set(Libraries "cliparser" "ilib")
+set(Libraries "cliparser" "ilib" "complib")
 
-set(IncludeDirs "${SourceDir}" "${ProjectDir}/Command-Line-Parser/src" "${ProjectDir}/Image-Library/src")
+set(IncludeDirs "${SourceDir}" "${ProjectDir}/Command-Line-Parser/src" "${ProjectDir}/Image-Library/src" "${ProjectDir}/Compression-Library/src")
 
 set(SourceFiles
 	"${SourceDir}/Main.cpp"
 	"${SourceDir}/Steg.cpp"
+	"${SourceDir}/StegUtils.cpp"
+	"${SourceDir}/BitIO.cpp"
 )
 
 set(HeaderFiles
 	"${SourceDir}/Steg.h"
+	"${SourceDir}/StegUtils.h"
+	"${SourceDir}/BitIO.h"
 )
 
 # ===

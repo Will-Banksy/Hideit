@@ -1,9 +1,9 @@
 [submodule "Command-Line-Parser"]
 	path = Command-Line-Parser
-	url = https://github.com/Will-Banksy/Command-Line-Parser
+	url = git@github.com:Will-Banksy/Command-Line-Parser.git
 [submodule "Image-Library"]
 	path = Image-Library
-	url = https://github.com/Will-Banksy/Image-Library
+	url = git@github.com:Will-Banksy/Image-Library.git
 [submodule "Compression-Library"]
 	path = Compression-Library
-	url = https://github.com/Will-Banksy/Compression-Library
+	url = git@github.com:Will-Banksy/Compression-Library.git
