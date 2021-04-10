@@ -16,7 +16,7 @@ git clone --recurse-submodules git@github.com:Will-Banksy/Hideit.git
 Then go into the project directory and do:
 ```bash
 mkdir build && cd build
-cmake -DCLI_PARSER_STATIC=ON -DCOMPLIB_STATIC=ON -DILIB_STATIC=ON ..
+cmake -DCLI_PARSER_STATIC=ON -DCOMPLIB_STATIC=ON -DILIB_STATIC=ON -DCMAKE_BUILD_TYPE=Release ..
 make
 ```
 
