@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
 	bool showHelp = false;
 	bool showVersion = false;
 	std::string operation;
-	std::string bppStr;
+	std::string bpbStr;
 
 	parser.AddArgs({ new CommandLineArg("operation", "The operation to perform, must be either embed or extract", &operation) });
 	parser.AddOptions({
@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 		new CommandLineOption({ "-df", "--datafile" }, "Allows you to specify the datafile - If not specified, will take data from stdin (for embedding) and output to stdout (for extracting)", nullptr, { new CommandLineArg("datafile", "the file that contains the data to be hidden", &dataFile) }),
 		new CommandLineOption({ "-sf", "--stegofile" }, "Allows you to specify the stegofile", nullptr, { new CommandLineArg("stegofile", "the file that contains the hidden data", &stegoFile) }),
 		new CommandLineOption({ "-cf", "--coverfile" }, "Allows you to specify the coverfile", nullptr, { new CommandLineArg("coverfile", "the file that is used to hide the data", &coverFile) }),
-		new CommandLineOption({ "-bpp", "--bits-per-pixel" }, "Allows you to specify the number of bits of data stored in each pixel (1-8) - More bpp is more noticeable", nullptr, { new CommandLineArg("bpp", "unseen help", &bppStr) })
+		new CommandLineOption({ "-bpb", "--bits-per-byte" }, "Allows you to specify the number of bits of data stored in each byte (1-8) - More bpb is more noticeable", nullptr, { new CommandLineArg("bpb", "unseen help", &bpbStr) })
 	});
 
 	parser.Parse(argc, argv);
@@ -72,14 +72,14 @@ int main(int argc, char** argv) {
 			} else {
 				data = StegUtils::ReadBinaryFile(dataFile);
 			}
-			uint8_t bpp = 1;
-			if(bppStr != "") {
-				bpp = StegUtils::ParseUint8(bppStr);
-				if(bpp == 0) bpp = 1;
-				if(bpp > 8) bpp = 8;
+			uint8_t bpb = 1;
+			if(bpbStr != "") {
+				bpb = StegUtils::ParseUint8(bpbStr);
+				if(bpb == 0) bpb = 1;
+				if(bpb > 8) bpb = 8;
 			}
 			Image coverImage(coverFile);
-			Steg::EmbedInImage(coverImage, data, bpp);
+			Steg::EmbedInImage(coverImage, data, bpb);
 			coverImage.Save(stegoFile);
 		} else {
 			std::vector<std::string> missing;

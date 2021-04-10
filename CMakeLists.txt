@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.5)
 
 # ===
 
-set(ProjectName "Steganography")
+set(ProjectName "Hideit")
 set(ProjectVersion "1.0")
-set(ExecutableName "SteganographyExe")
+set(ExecutableName "hideit")
 
 set(CMakeFlags "-std=c++17")
 set(CMakeDebugFlags "-g")
