@@ -1,6 +1,7 @@
 #include "StegUtils.h"
 #include <fstream>
 #include <vector>
+#include <sstream>
 
 std::vector<uint8_t> StegUtils::ReadBinaryFile(const std::string& filename) {
 	std::ifstream filestream(filename, std::ios::binary);
@@ -44,4 +45,28 @@ uint8_t StegUtils::ParseUint8(const std::string& str) {
 	uint8_t result = lresult;
 	if (result != lresult) throw std::out_of_range("Out of range");
 	return result;
+}
+
+std::vector<std::string> StegUtils::Split(std::string str, char delim, bool ignoreEmpty) {
+	// Current token
+	std::stringstream token;
+	std::vector<std::string> tokens;
+
+	for(int i = 0; i < str.length(); i++) {
+		if(str.at(i) == delim) {
+			token.flush();
+			if(!ignoreEmpty || !token.str().empty()) {
+				tokens.push_back(token.str());
+			}
+			token.str(std::string()); // Empty the current token
+		} else {
+			token << char(str.at(i)); // Should probably make sure it's copied
+		}
+	}
+	token.flush();
+	if(!ignoreEmpty || !token.str().empty()) {
+		tokens.push_back(token.str());
+	}
+
+	return tokens;
 }

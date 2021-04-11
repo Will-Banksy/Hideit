@@ -4,12 +4,13 @@
 #include "image/Image.h"
 #include <sstream>
 #include "BitIO.h"
+#include <cctype>
 
 // TODO Make the stego stuff into a library. Eventually
 // TODO Add AES encryption capabilities
 
 int main(int argc, char** argv) {
-	CommandLineParser parser("SteganographyExe", "1.0");
+	CommandLineParser parser("hideit", "1.0");
 
 	std::string coverFile;
 	std::string stegoFile;
@@ -19,7 +20,7 @@ int main(int argc, char** argv) {
 	std::string operation;
 	std::string bpbStr;
 
-	parser.AddArgs({ new CommandLineArg("operation", "The operation to perform, must be either embed or extract", &operation) });
+	parser.AddArgs({ new CommandLineArg("operation", "The operation to perform, must be either embed or extract\n\t\tembed\t- Embed dataFile in coverFile, saving output as stegoFile\n\t\textract\t- Extract data from stegoFile, saving output as dataFile", &operation) });
 	parser.AddOptions({
 		new CommandLineOption({ "-h", "--help" }, "Displays this help", &showHelp),
 		new CommandLineOption({ "--version" }, "Displays the program version", &showVersion),
@@ -66,7 +67,9 @@ int main(int argc, char** argv) {
 				while(!std::cin.eof()) {
 					std::string line;
 					getline(std::cin, line);
-					line.append("\n");
+					if(!std::cin.eof()) {
+						line.append("\n");
+					}
 					data.insert(data.end(), line.begin(), line.end());
 				}
 			} else {
@@ -80,7 +83,23 @@ int main(int argc, char** argv) {
 			}
 			Image coverImage(coverFile);
 			Steg::EmbedInImage(coverImage, data, bpb);
-			coverImage.Save(stegoFile);
+
+			// Convert file extension to lowercase - Should probably add support for uppercase file extensions in this and ilib but this will do for now
+			std::string::iterator startFrom = stegoFile.begin() + stegoFile.find_last_of('.');
+			std::transform(startFrom, stegoFile.end(), startFrom, tolower);
+
+			auto stegoFilenameParts = StegUtils::Split(stegoFile, '.');
+			std::string& extension = stegoFilenameParts.back();
+
+			ImageFileType format = FileType_Auto;
+			if(extension == "jpg") { // JPG is unsupported - it uses lossy compression which corrupts any data we try hide in it
+				format = FileType_PNG;
+			}
+			if(extension != "png" && extension != "tga" && extension != "bmp") {
+				std::cout << "[WARN]: Unsupported image format - Saving as png" << std::endl;
+			}
+
+			coverImage.Save(stegoFile, format);
 		} else {
 			std::vector<std::string> missing;
 			if(coverFile == "") {

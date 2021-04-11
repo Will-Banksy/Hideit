@@ -14,6 +14,8 @@ public:
 	static void SetBitAt(uint8_t& byte, uint8_t bitIndex, bool value);
 
 	static uint8_t ParseUint8(const std::string& str);
+
+	static std::vector<std::string> Split(std::string str, char delim, bool ignoreEmpty = true);
 };
 
 #endif // STEGUTILS_H
