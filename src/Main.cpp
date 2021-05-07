@@ -5,6 +5,7 @@
 #include <sstream>
 #include "BitIO.h"
 #include <cctype>
+#include "lzo/LZOCompression.h"
 
 // TODO Make the stego stuff into a library. Eventually
 // TODO Add AES encryption capabilities
@@ -19,6 +20,7 @@ int main(int argc, char** argv) {
 	bool showVersion = false;
 	std::string operation;
 	std::string bpbStr;
+	bool compress = false;
 
 	parser.AddArgs({ new CommandLineArg("operation", "The operation to perform, must be either embed or extract\n\t\tembed\t- Embed dataFile in coverFile, saving output as stegoFile\n\t\textract\t- Extract data from stegoFile, saving output as dataFile", &operation) });
 	parser.AddOptions({
@@ -27,7 +29,8 @@ int main(int argc, char** argv) {
 		new CommandLineOption({ "-df", "--datafile" }, "Allows you to specify the datafile - If not specified, will take data from stdin (for embedding) and output to stdout (for extracting)", nullptr, { new CommandLineArg("datafile", "the file that contains the data to be hidden", &dataFile) }),
 		new CommandLineOption({ "-sf", "--stegofile" }, "Allows you to specify the stegofile", nullptr, { new CommandLineArg("stegofile", "the file that contains the hidden data", &stegoFile) }),
 		new CommandLineOption({ "-cf", "--coverfile" }, "Allows you to specify the coverfile", nullptr, { new CommandLineArg("coverfile", "the file that is used to hide the data", &coverFile) }),
-		new CommandLineOption({ "-bpb", "--bits-per-byte" }, "Allows you to specify the number of bits of data stored in each byte (1-8) - More bpb is more noticeable", nullptr, { new CommandLineArg("bpb", "unseen help", &bpbStr) })
+		new CommandLineOption({ "-bpb", "--bits-per-byte" }, "Allows you to specify the number of bits of data stored in each byte (1-8) - More bpb is more noticeable", nullptr, { new CommandLineArg("bpb", "unseen help", &bpbStr) }),
+		new CommandLineOption({ "-c", "--compress" }, "If present, the data is compressed before being embedded" , &compress)
 	});
 
 	parser.Parse(argc, argv);
@@ -58,6 +61,7 @@ int main(int argc, char** argv) {
 //
 // 	return 0;
 
+	// TODO Error checking and handling
 	if(operation == "embed") {
 		if(coverFile != "" && stegoFile != "") {
 			std::vector<uint8_t> data;
@@ -81,8 +85,24 @@ int main(int argc, char** argv) {
 				if(bpb == 0) bpb = 1;
 				if(bpb > 8) bpb = 8;
 			}
+
+			// Load the image, put the data into a std::vector, delete the old image data and make the coverImage.m_Bytes point to the vector data
 			Image coverImage(coverFile);
-			Steg::EmbedInImage(coverImage, data, bpb);
+			std::vector<uint8_t> coverData = StegUtils::CreateFrom(coverImage.m_Bytes, coverImage.m_Width * coverImage.m_Height * coverImage.m_Format);
+			delete[] coverImage.m_Bytes; // Delete the old data
+			coverImage.m_Bytes = coverData.data(); // The data in coverData is the data we're working on
+
+			uint32_t uncompressedSize = data.size();
+			if(compress) {
+				std::vector<uint8_t> dataComp; // Compressed data
+				LZOCompression::Compress(data, dataComp);
+				data = dataComp;
+			}
+
+			DataHeader header(compress, bpb, uncompressedSize, data.size());
+
+			// Embed the data into coverData. This will change coverData
+			Steg::Embed(coverData, data, header, nullptr);
 
 			// Convert file extension to lowercase - Should probably add support for uppercase file extensions in this and ilib but this will do for now
 			std::string::iterator startFrom = stegoFile.begin() + stegoFile.find_last_of('.');
@@ -100,6 +120,8 @@ int main(int argc, char** argv) {
 			}
 
 			coverImage.Save(stegoFile, format);
+
+			coverImage.m_Bytes = new uint8_t(); // Do this because currently m_Bytes is pointing to data contained in a vector, the vector will delete the data and the destructor of Image will try to do the same, or vice-versa, which is bad
 		} else {
 			std::vector<std::string> missing;
 			if(coverFile == "") {
@@ -121,7 +143,18 @@ int main(int argc, char** argv) {
 	} else if(operation == "extract") {
 		if(stegoFile != "") {
 			Image stegoImage(stegoFile);
-			std::vector<uint8_t> data = Steg::ExtractFromImage(stegoImage);
+			std::vector<uint8_t> stegoData = StegUtils::CreateFrom(stegoImage.m_Bytes, stegoImage.m_Width * stegoImage.m_Height * stegoImage.m_Format);
+			stegoImage.Free(); // Don't need the image object any more, so we just free it's memory
+
+			DataHeader header;
+			std::vector<uint8_t> data = Steg::Extract(stegoData, &header);
+
+			if(header.compressed) {
+				std::vector<uint8_t> dataDecomp;
+				LZOCompression::Decompress(data, dataDecomp, header.decompressedSize);
+				data = dataDecomp;
+			}
+
 			if(dataFile == "") {
 				for(uint8_t ch : data) {
 					std::cout << ch;

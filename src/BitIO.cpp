@@ -1,6 +1,6 @@
 #include "BitIO.h"
 
-BitReader::BitReader(uint8_t* bytes, uint64_t numBits, uint8_t bitsPerByte, bool startAtLSB) : m_Bytes(bytes), m_NumBits(numBits),
+BitReader::BitReader(const uint8_t* bytes, uint64_t numBits, uint8_t bitsPerByte, bool startAtLSB) : m_Bytes(bytes), m_NumBits(numBits),
 																								m_BitsPerByte(bitsPerByte), m_StartAtLSB(startAtLSB),
 																								m_Done(false), m_ByteIndex(0), m_BitIndex(0), m_OverallBitIndex(0) {
 }

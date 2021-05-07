@@ -4,13 +4,13 @@
 #include <cstdint>
 
 struct BitReader {
-	uint8_t* m_Bytes;
+	const uint8_t* m_Bytes;
 	uint64_t m_NumBits;
 	uint8_t m_BitsPerByte;
 	bool m_StartAtLSB;
 	bool m_Done;
 
-	BitReader(uint8_t* bytes, uint64_t numBits, uint8_t bitsPerByte = 8, bool startAtLSB = false);
+	BitReader(const uint8_t* bytes, uint64_t numBits, uint8_t bitsPerByte = 8, bool startAtLSB = false);
 
 	bool ReadNextBit();
 	bool Done() { return m_Done; }
