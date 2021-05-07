@@ -9,6 +9,7 @@
 
 // TODO Make the stego stuff into a library. Eventually
 // TODO Add AES encryption capabilities
+// TODO Needs lots of error checking. For example, need to check if files exist before opening them!
 
 int main(int argc, char** argv) {
 	CommandLineParser parser("hideit", "1.0");
@@ -47,19 +48,6 @@ int main(int argc, char** argv) {
 		parser.Version();
 		return 0;
 	}
-
-// 	std::vector<uint8_t> arr = { 0b00000010, 0b00000010, 0b00000010, 0b00000010, 0b00000010, 0b00000010, 0b00000010, 0b00000010 };
-// 	BitReader reader(arr.data(), 12, 1, true);
-// 	while(!reader.Done()) {
-// 		std::cout << reader.ReadNextBit();
-// 		if(reader.m_OverallBitIndex == 4) {
-// 			reader.m_BitsPerByte = 2;
-// 			std::cout << "|";
-// 		}
-// 	}
-// 	std::cout << std::endl;
-//
-// 	return 0;
 
 	// TODO Error checking and handling
 	if(operation == "embed") {
