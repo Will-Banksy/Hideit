@@ -9,8 +9,8 @@
 #include "aes/AESEncryption.h"
 
 // TODO Make the stego stuff into a library. Eventually
-// TODO Add AES encryption capabilities
 // TODO Needs lots of error checking. For example, need to check if files exist before opening them!
+// Currently if *anything* goes wrong, it just continues as if nothing has gone wrong until it segfaults. Desperately needs error checking
 
 int main(int argc, char** argv) {
 	CommandLineParser parser("hideit", "1.0");

@@ -7,8 +7,9 @@ set(ProjectName "Hideit")
 set(ProjectVersion "1.0")
 set(ExecutableName "hideit")
 
-set(CMakeFlags "-std=c++17")
-set(CMakeDebugFlags "-g")
+set(CMAKE_CXX_STANDARD 20)
+set(CMakeFlags "")
+set(CMakeDebugFlags "")
 
 # ===
 
@@ -50,6 +51,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMakeDebugFlags}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMakeFlags}")
 
 message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
 
 add_executable("${ExecutableName}" "${SourceFiles}" "${HeaderFiles}")
 
