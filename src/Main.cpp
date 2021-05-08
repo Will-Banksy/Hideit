@@ -6,6 +6,7 @@
 #include "BitIO.h"
 #include <cctype>
 #include "lzo/LZOCompression.h"
+#include "aes/AESEncryption.h"
 
 // TODO Make the stego stuff into a library. Eventually
 // TODO Add AES encryption capabilities
@@ -22,6 +23,7 @@ int main(int argc, char** argv) {
 	std::string operation;
 	std::string bpbStr;
 	bool compress = false;
+	std::string passkeyStr;
 
 	parser.AddArgs({ new CommandLineArg("operation", "The operation to perform, must be either embed or extract\n\t\tembed\t- Embed dataFile in coverFile, saving output as stegoFile\n\t\textract\t- Extract data from stegoFile, saving output as dataFile", &operation) });
 	parser.AddOptions({
@@ -31,7 +33,8 @@ int main(int argc, char** argv) {
 		new CommandLineOption({ "-sf", "--stegofile" }, "Allows you to specify the stegofile", nullptr, { new CommandLineArg("stegofile", "the file that contains the hidden data", &stegoFile) }),
 		new CommandLineOption({ "-cf", "--coverfile" }, "Allows you to specify the coverfile", nullptr, { new CommandLineArg("coverfile", "the file that is used to hide the data", &coverFile) }),
 		new CommandLineOption({ "-bpb", "--bits-per-byte" }, "Allows you to specify the number of bits of data stored in each byte (1-8) - More bpb is more noticeable", nullptr, { new CommandLineArg("bpb", "unseen help", &bpbStr) }),
-		new CommandLineOption({ "-c", "--compress" }, "If present, the data is compressed before being embedded" , &compress)
+		new CommandLineOption({ "-c", "--compress" }, "If present, the data is compressed before being embedded" , &compress),
+		new CommandLineOption({ "-p", "--passkey" }, "If present, AES-128 encryption is used to encrypt and decrypt the data with the given passkey", nullptr, { new CommandLineArg("passkey", "unseen help", &passkeyStr) })
 	});
 
 	parser.Parse(argc, argv);
@@ -87,7 +90,19 @@ int main(int argc, char** argv) {
 				data = dataComp;
 			}
 
-			DataHeader header(compress, bpb, uncompressedSize, data.size());
+			bool encrypted = !passkeyStr.empty();
+
+			if(encrypted) {
+				std::vector<uint8_t> dataEnc; // Encrypted data
+				std::vector<uint8_t> passkey;
+				passkey.resize(passkeyStr.size());
+				memcpy(passkey.data(), passkeyStr.data(), passkeyStr.size()); // Copy passkeyStr into passkey
+				passkeyStr.clear(); // Delete the passkey string data
+				dataEnc = AESEncryption::AES128(data, passkey);
+				data = dataEnc;
+			}
+
+			DataHeader header(compress, encrypted, bpb, uncompressedSize, data.size());
 
 			// Embed the data into coverData. This will change coverData
 			Steg::Embed(coverData, data, header, nullptr);
@@ -136,6 +151,16 @@ int main(int argc, char** argv) {
 
 			DataHeader header;
 			std::vector<uint8_t> data = Steg::Extract(stegoData, &header);
+
+			if(header.encrypted) {
+				std::vector<uint8_t> dataEnc; // Encrypted data
+				std::vector<uint8_t> passkey;
+				passkey.resize(passkeyStr.size());
+				memcpy(passkey.data(), passkeyStr.data(), passkeyStr.size()); // Copy passkeyStr into passkey
+				passkeyStr.clear(); // Delete the passkey string data
+				dataEnc = AESEncryption::AES128(data, passkey);
+				data = dataEnc;
+			}
 
 			if(header.compressed) {
 				std::vector<uint8_t> dataDecomp;

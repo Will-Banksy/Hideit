@@ -7,3 +7,6 @@
 [submodule "Compression-Library"]
 	path = Compression-Library
 	url = git@github.com:Will-Banksy/Compression-Library.git
+[submodule "Encryption-Library"]
+	path = Encryption-Library
+	url = git@github.com:Will-Banksy/Encryption-Library.git

@@ -10,21 +10,18 @@ class Image;
 #pragma pack(push, 1)
 struct DataHeader {
 	bool compressed;
+	bool encrypted;
 	uint8_t bitsPerByte;
 	uint32_t decompressedSize;
 	uint32_t compressedSize;
 
-	DataHeader() : compressed(false), bitsPerByte(0), decompressedSize(0), compressedSize(0) {}
-	DataHeader(bool compressed, uint8_t bitsPerByte, uint32_t decompressedSize, uint32_t compressedSize) : compressed(compressed), bitsPerByte(bitsPerByte), decompressedSize(decompressedSize), compressedSize(compressedSize) {}
+	DataHeader() : compressed(false), encrypted(0), bitsPerByte(0), decompressedSize(0), compressedSize(0) {}
+	DataHeader(bool compressed, bool encrypted, uint8_t bitsPerByte, uint32_t decompressedSize, uint32_t compressedSize) : compressed(compressed), encrypted(encrypted), bitsPerByte(bitsPerByte), decompressedSize(decompressedSize), compressedSize(compressedSize) {}
 };
 #pragma pack(pop)
 
 class Steg {
 public:
-	/// <code>bitsPerChannel</code> is the number of bits to hide in a single channel (a channel being like a single component (red, green or blue) of RGB) (inserts a header at the front that always uses 1 bit per channel)
-	static void EmbedInImage(Image& coverImage, std::vector<uint8_t>& data, uint8_t bitsPerChannel = 2, bool* error = nullptr);
-	static std::vector<uint8_t> ExtractFromImage(Image& stegoImage, bool* error = nullptr);
-
 	/// Embeds <code>data</code> into <code>cover</code> writing <code>bitsPerByte</code> bits into each byte of <code>cover</code>, writing the result into <code>cover</code><br>
 	/// If an error occurs, <code>error</code> will be 1, otherwise it'll be 0<br>
 	/// The <code>header</code> provides options to the function such as <code>bitsPerByte</code>, and is embedded to provide information necessary to extraction

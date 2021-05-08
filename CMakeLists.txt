@@ -23,12 +23,13 @@ set(SourceDir "${ProjectDir}/src")
 add_subdirectory(Command-Line-Parser)
 add_subdirectory(Image-Library)
 add_subdirectory(Compression-Library)
+add_subdirectory(Encryption-Library)
 
 # ===
 
-set(Libraries "cliparser" "ilib" "complib")
+set(Libraries "cliparser" "ilib" "complib" "enclib")
 
-set(IncludeDirs "${SourceDir}" "${ProjectDir}/Command-Line-Parser/src" "${ProjectDir}/Image-Library/src" "${ProjectDir}/Compression-Library/src")
+set(IncludeDirs "${SourceDir}" "${ProjectDir}/Command-Line-Parser/src" "${ProjectDir}/Image-Library/src" "${ProjectDir}/Compression-Library/src" "${ProjectDir}/Encryption-Library/src")
 
 set(SourceFiles
 	"${SourceDir}/Main.cpp"
